@@ -34,6 +34,9 @@ function listener(request, response){
     case '/api/all':
         all(response)
         break;
+    case '/api/resetdata':
+        resetdata(urldata, response)
+        break;
     default:
         default_resp(response);
   }
@@ -45,7 +48,7 @@ function set(udata, resp) {
   keys.forEach(function(key){
     storage.setItem(key, udata['query'][key]);
     var outs = "Set: {" + key + ": " + JSON.stringify(storage.getItem(key)) + "}";
-    // console.log(outs);
+    console.log(outs);
     out += JSON.stringify(storage.getItem(key));
   });
   resp.end(out);
@@ -58,13 +61,11 @@ function setjson(udata, resp) {
     try {
       storage.setItem(key, JSON.parse(udata['query'][key]));
       var outs = "Set: {" + key + ": " + JSON.stringify(storage.getItem(key)) + "}";
-      // console.log(outs);
       out += JSON.stringify(storage.getItem(key));
     }
     catch(err) {
       console.log(err.message);
-      resp.end("JSON Error")
-      // default_resp(resp);
+      resp.end("JSON Error: \n" + err.message)
     }
   });
   resp.end(out);
@@ -75,7 +76,7 @@ function get(udata, resp) {
   var keys = Object.keys(udata['query']);
   keys.forEach(function(key){
     var outs = storage.getItem(key);
-    // console.log("Get: {" + key + ": " + JSON.stringify(outs) + "}");
+    console.log("Get: {" + key + ": " + JSON.stringify(outs) + "}");
     out += JSON.stringify(outs);
   });
   resp.end(JSON.stringify(out));
@@ -92,12 +93,35 @@ function values(resp) {
 function all(resp) {
   var alld = {};
   storage.keys().forEach(function (key) {
-    // console.log(key);
-    // console.log(storage.getItem(key));
+    console.log(key);
+    console.log(storage.getItem(key));
     alld[key] = storage.getItem(key);
   });
-  // console.log(alld);
+  console.log(alld);
   resp.end(JSON.stringify(alld));
+}
+
+function resetdata(udata, resp) {
+  var s = "";
+  var out = "";
+  var keys = Object.keys(udata['query']);
+  keys.forEach(function(key){
+    if (key == 'YES'){
+      if (udata['query']['YES'] == 'YES'){
+        storage.clear();
+        s = "Cleared All Data"; 
+      }
+      else {
+        s = "Wrong valueword";
+      }
+    }
+    else {
+      s = "Wrong keyword";
+    }
+    console.log(s);
+    out += s;
+  });
+  resp.end(out);
 }
 
 function default_resp(resp) {
